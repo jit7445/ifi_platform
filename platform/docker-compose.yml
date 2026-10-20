@@ -1,0 +1,105 @@
+# Local development stack. Host ports avoid 8000/5432, which another project uses.
+# Object storage is SeaweedFS's S3 gateway (Apache-2.0), local only (ADR-011); the app talks plain S3 and runs
+# against AWS S3 elsewhere by changing S3_* settings.
+name: ifl-platform
+
+x-backend-env: &backend-env
+  ENV: dev
+  DATABASE_URL: postgresql+psycopg://ifl_app:ifl_app_dev@postgres:5432/ifl
+  DATABASE_URL_OPS: postgresql+psycopg://ifl_ops:ifl_ops_dev@postgres:5432/ifl
+  DATABASE_URL_OWNER: postgresql+psycopg://ifl_owner:ifl_owner_dev@postgres:5432/ifl
+  JWT_SECRET: ${JWT_SECRET:-local-dev-only-jwt-secret-change-me-0123456789}
+  S3_ENDPOINT_URL: http://seaweedfs:8333
+  # Presigned URLs are signed for the host the browser uses; SigV4 binds the Host header.
+  S3_PUBLIC_ENDPOINT_URL: http://localhost:${S3_PORT:-8333}
+  S3_BUCKET: ifl-local
+  S3_ACCESS_KEY: ifl_local_key
+  S3_SECRET_KEY: ifl_local_secret
+  CORS_ORIGINS: http://localhost:3000
+  JOBS_MODE: procrastinate
+  REQUIRE_MFA: "false"
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: ifl
+      POSTGRES_USER: ifl_owner
+      POSTGRES_PASSWORD: ifl_owner_dev
+    ports: ["${POSTGRES_PORT:-5434}:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ifl_owner -d ifl"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    # The image entrypoint adds -dir=/data; later flags win, so the small volume size keeps local disk use low.
+    command: >
+      server -ip=seaweedfs -ip.bind=0.0.0.0 -volume.max=0 -master.volumeSizeLimitMB=64
+      -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+      -s3.allowedOrigins=http://localhost:3000
+    ports: ["${S3_PORT:-8333}:8333"]
+    volumes:
+      - s3data:/data
+      - ./backend/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8333/healthz >/dev/null || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  migrate:
+    build: ./backend
+    environment: *backend-env
+    command: ["python", "-m", "app.cli", "migrate"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  storage-init:
+    build: ./backend
+    environment: *backend-env
+    command: ["python", "-m", "app.cli", "init-storage"]
+    depends_on:
+      seaweedfs: { condition: service_healthy }
+    restart: on-failure:5
+
+  api:
+    build: ./backend
+    environment: *backend-env
+    ports: ["${API_PORT:-8010}:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      storage-init: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker:
+    build: ./backend
+    environment: *backend-env
+    command: ["python", "-m", "app.worker"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      storage-init: { condition: service_completed_successfully }
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        API_URL: http://api:8000
+    ports: ["${WEB_PORT:-3000}:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+    profiles: ["web"]
+
+volumes:
+  pgdata:
+  s3data:

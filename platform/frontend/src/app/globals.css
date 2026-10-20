@@ -1,0 +1,305 @@
+@import "tailwindcss";
+
+/*
+ * Semantic design tokens. Raw values live in the :root blocks below (light, then dark);
+ * Tailwind utilities read them through @theme inline, so `bg-surface`, `text-fg-muted`,
+ * `border-line` and friends switch with the theme. The default Tailwind palette is
+ * cleared so a stray `bg-blue-600` produces no CSS instead of an off-brand colour.
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --color-*: initial;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-overlay: var(--overlay);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-line: var(--primary-line);
+  --color-primary-text: var(--primary-text);
+  --color-on-primary: var(--on-primary);
+
+  --color-accent: var(--accent);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-line: var(--accent-line);
+  --color-accent-text: var(--accent-text);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-line: var(--success-line);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-line: var(--warning-line);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-line: var(--danger-line);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+  --color-info-line: var(--info-line);
+
+  --color-focus: var(--focus);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-grid: var(--chart-grid);
+}
+
+:root {
+  color-scheme: light;
+
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f1f3f6;
+  --surface-hover: #eceef3;
+  --line: #e2e5eb;
+  --line-strong: #c9ced8;
+  --fg: #0f172a;
+  --fg-muted: #4a5468;
+  --fg-subtle: #657086;
+  --overlay: rgb(15 23 42 / 0.45);
+
+  --primary: #4340d4;
+  --primary-hover: #3632b8;
+  --primary-subtle: #eef0ff;
+  --primary-line: #c9cdfb;
+  --primary-text: #3b38c4;
+  --on-primary: #ffffff;
+
+  --accent: #0d9488;
+  --accent-subtle: #e6f6f4;
+  --accent-line: #a9e0d9;
+  --accent-text: #0b6b63;
+
+  --success: #157341;
+  --success-subtle: #e9f7ef;
+  --success-line: #b5e2c6;
+  --warning: #9a4b06;
+  --warning-subtle: #fef5e6;
+  --warning-line: #f3d29b;
+  --danger: #b42318;
+  --danger-subtle: #fdeeec;
+  --danger-line: #f6c4be;
+  --danger-solid: #c8281c;
+  --danger-solid-hover: #a91f15;
+  --info: #1d4fb8;
+  --info-subtle: #ebf2ff;
+  --info-line: #bfd3fb;
+
+  --focus: #5b58f0;
+
+  --chart-1: #4340d4;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #c02670;
+  --chart-5: #0284c7;
+  --chart-6: #7c3aed;
+  --chart-grid: #e2e5eb;
+
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 3px rgb(15 23 42 / 0.04);
+  --shadow-pop: 0 10px 30px -8px rgb(15 23 42 / 0.25), 0 2px 6px rgb(15 23 42 / 0.08);
+}
+
+/* Dark values are declared twice: once for "system" via the media query, once for an explicit choice. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #0b0e14;
+    --surface: #121620;
+    --surface-raised: #181d29;
+    --surface-sunken: #0e121a;
+    --surface-hover: #1e2431;
+    --line: #262d3b;
+    --line-strong: #39425a;
+    --fg: #e7eaf0;
+    --fg-muted: #a6aec0;
+    --fg-subtle: #8a93a8;
+    --overlay: rgb(0 0 0 / 0.6);
+
+    --primary: #5654e8;
+    --primary-hover: #6866f0;
+    --primary-subtle: #1d1f45;
+    --primary-line: #3a3d80;
+    --primary-text: #a9abff;
+    --on-primary: #ffffff;
+
+    --accent: #2cc2b2;
+    --accent-subtle: #0c2a28;
+    --accent-line: #1b5751;
+    --accent-text: #5fd9cb;
+
+    --success: #5bd38f;
+    --success-subtle: #0e2a1c;
+    --success-line: #1d5a39;
+    --warning: #f5b549;
+    --warning-subtle: #2c1f08;
+    --warning-line: #6a4810;
+    --danger: #ff8a7e;
+    --danger-subtle: #321311;
+    --danger-line: #6e2620;
+    --danger-solid: #d0342a;
+    --danger-solid-hover: #e04035;
+    --info: #8cb4ff;
+    --info-subtle: #0f1d38;
+    --info-line: #27427a;
+
+    --focus: #8a88ff;
+
+    --chart-1: #7d7bff;
+    --chart-2: #2cc2b2;
+    --chart-3: #f5a524;
+    --chart-4: #f06aa8;
+    --chart-5: #38bdf8;
+    --chart-6: #a78bfa;
+    --chart-grid: #262d3b;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #0b0e14;
+  --surface: #121620;
+  --surface-raised: #181d29;
+  --surface-sunken: #0e121a;
+  --surface-hover: #1e2431;
+  --line: #262d3b;
+  --line-strong: #39425a;
+  --fg: #e7eaf0;
+  --fg-muted: #a6aec0;
+  --fg-subtle: #8a93a8;
+  --overlay: rgb(0 0 0 / 0.6);
+
+  --primary: #5654e8;
+  --primary-hover: #6866f0;
+  --primary-subtle: #1d1f45;
+  --primary-line: #3a3d80;
+  --primary-text: #a9abff;
+  --on-primary: #ffffff;
+
+  --accent: #2cc2b2;
+  --accent-subtle: #0c2a28;
+  --accent-line: #1b5751;
+  --accent-text: #5fd9cb;
+
+  --success: #5bd38f;
+  --success-subtle: #0e2a1c;
+  --success-line: #1d5a39;
+  --warning: #f5b549;
+  --warning-subtle: #2c1f08;
+  --warning-line: #6a4810;
+  --danger: #ff8a7e;
+  --danger-subtle: #321311;
+  --danger-line: #6e2620;
+  --danger-solid: #d0342a;
+  --danger-solid-hover: #e04035;
+  --info: #8cb4ff;
+  --info-subtle: #0f1d38;
+  --info-line: #27427a;
+
+  --focus: #8a88ff;
+
+  --chart-1: #7d7bff;
+  --chart-2: #2cc2b2;
+  --chart-3: #f5a524;
+  --chart-4: #f06aa8;
+  --chart-5: #38bdf8;
+  --chart-6: #a78bfa;
+  --chart-grid: #262d3b;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.4);
+}
+
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+
+@utility shadow-pop {
+  box-shadow: var(--shadow-pop);
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "cv11", "ss01";
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary-subtle);
+  color: var(--fg);
+}
+
+.prose-plain p + p {
+  margin-top: 0.75rem;
+}
+
+/* Long-form model output: comfortable measure and leading for sustained reading. */
+.prose-read {
+  max-width: 72ch;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-sunken) 0%, var(--surface-hover) 50%, var(--surface-sunken) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

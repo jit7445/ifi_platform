@@ -1,0 +1,49 @@
+flowchart TD
+  classDef cust fill:#dbeafe,stroke:#1e40af,color:#0f172a
+  classDef staff fill:#fef3c7,stroke:#b45309,color:#0f172a
+  classDef expert fill:#dcfce7,stroke:#15803d,color:#0f172a
+  classDef sys fill:#f1f5f9,stroke:#475569,color:#0f172a
+  classDef decision fill:#fee2e2,stroke:#b91c1c,color:#0f172a
+
+  A["Customer registers org<br/>org pending_verification"]:::cust --> B["Org verified by internal admin"]:::staff
+  B --> C["Customer creates project<br/>domain, task type, volume, languages, deadline, format"]:::cust
+  C --> D["Upload CSV/JSONL or API batch<br/>presigned S3 upload"]:::cust
+  D --> E["Scan, validate, import<br/>dataset v1 frozen, model runs created"]:::sys
+  C --> F["Draft rubric version<br/>criteria, anchors, error taxonomy"]:::cust
+  E --> G["Submit project for review"]:::cust
+  F --> G
+  G --> H{"PM review<br/>scope, rubric, feasibility, price"}:::decision
+  H -- "changes requested" --> C
+  H -- "approved" --> I["PM publishes rubric version<br/>project active"]:::staff
+  I --> J["Generate tasks<br/>overlap k, gold injection, slot randomisation"]:::sys
+  J --> K["Recommend experts<br/>skills, credentials, language, availability, conflict of interest"]:::sys
+  K --> L{"PM approves assignments"}:::decision
+  L -- "rejected candidates" --> K
+  L -- "approved" --> M{"Expert qualified?"}:::decision
+  M -- "no" --> N["Calibration on gold items<br/>feedback shown"]:::expert
+  N --> M2{"Pass threshold?"}:::decision
+  M2 -- "no" --> X["Not qualified for project"]:::sys
+  M2 -- "yes" --> O
+  M -- "yes" --> O["Expert pulls next task<br/>scores, labels, explanations,<br/>corrections, preferences, rankings, red-team items"]:::expert
+  O --> P["Submission stored<br/>outbox event"]:::sys
+  P --> Q["Gold check, review sampling"]:::sys
+  Q --> R{"Sampled or flagged?"}:::decision
+  R -- "yes" --> S{"Reviewer decision"}:::decision
+  S -- "request rework" --> O
+  S -- "reject" --> J2["Slot reopened for another expert"]:::sys
+  J2 --> O
+  S -- "escalate" --> V
+  S -- "accept" --> T
+  R -- "no" --> T{"Overlap reached?"}:::decision
+  T -- "no" --> O
+  T -- "yes" --> U{"Agreement above threshold?"}:::decision
+  U -- "yes" --> W["Consensus final result<br/>task completed, usage recorded"]:::sys
+  U -- "no" --> V["Adjudication by senior reviewer<br/>final result and rationale"]:::staff
+  V --> W
+  V -. "clear cases become gold candidates" .-> N
+  W --> Y["Compute metrics<br/>alpha, kappa, gold accuracy, win rates, regressions"]:::sys
+  Y --> Z["Create dataset version<br/>filters, provenance manifest, freeze"]:::staff
+  Z --> Z1["Export<br/>eval benchmark, SFT JSONL, preference pairs, red-team set"]:::sys
+  Z1 --> Z2["Customer downloads via short-lived signed URL<br/>accepts deliverable"]:::cust
+  Z2 --> Z3["New model version uploaded<br/>against frozen benchmark"]:::cust
+  Z3 --> J

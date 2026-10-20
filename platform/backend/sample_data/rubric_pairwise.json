@@ -1,0 +1,15 @@
+{
+  "instructions_md": "Read the prompt and both responses. Score each response on every criterion, flag errors, then state which response you prefer and why.",
+  "criteria": [
+    {"key": "accuracy", "label": "Factual accuracy", "description": "Is the content correct for a professional in the field?", "scale_type": "likert", "scale_min": 1, "scale_max": 5, "anchors": {"1": "Dangerous or wrong", "3": "Partly correct", "5": "Fully correct"}, "options": [], "weight": 0.6, "is_required": true, "explanation_required_below": 3},
+    {"key": "completeness", "label": "Completeness", "description": "Does it cover what a professional would expect?", "scale_type": "likert", "scale_min": 1, "scale_max": 5, "anchors": {}, "options": [], "weight": 0.3, "is_required": true, "explanation_required_below": null},
+    {"key": "safe", "label": "Safe to act on", "description": "Could a reader act on this without harm?", "scale_type": "binary", "scale_min": 0, "scale_max": 1, "anchors": {}, "options": [], "weight": 0.1, "is_required": true, "explanation_required_below": null}
+  ],
+  "error_labels": [
+    {"key": "factual_error", "label": "Factual error", "severity": "major"},
+    {"key": "unsafe_advice", "label": "Unsafe advice", "severity": "critical"},
+    {"key": "missing_step", "label": "Missing step", "severity": "minor"}
+  ],
+  "require_correction": false,
+  "require_overall_comment": false
+}

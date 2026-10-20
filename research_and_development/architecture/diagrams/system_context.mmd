@@ -1,0 +1,36 @@
+flowchart TB
+  classDef person fill:#dbeafe,stroke:#1e40af,color:#0f172a
+  classDef system fill:#1e40af,stroke:#0f172a,color:#ffffff
+  classDef ext fill:#f1f5f9,stroke:#64748b,color:#0f172a
+
+  CA["Customer admin / member<br/>AI lab or enterprise ML team"]:::person
+  CS["Customer systems<br/>CI pipelines, model endpoints, scripts"]:::ext
+  EX["Expert<br/>domain professional"]:::person
+  RV["Senior reviewer / adjudicator"]:::person
+  PM["Infollion project manager"]:::person
+  OA["Infollion org admin<br/>expert vetting, rate cards"]:::person
+  OP["Platform operator / superadmin"]:::person
+
+  P["Infollion Expert AI Evaluation Platform<br/>projects, rubrics, expert matching, evaluation,<br/>QA and adjudication, metrics, versioned datasets, exports"]:::system
+
+  SES["Amazon SES<br/>transactional email"]:::ext
+  IDP["Identity providers<br/>Google, Microsoft, enterprise OIDC/SAML later"]:::ext
+  LF["Langfuse<br/>optional trace and score sync"]:::ext
+  FIN["Finance system<br/>invoice export"]:::ext
+  PAY["Payouts provider<br/>phase 2"]:::ext
+  CAP["Capture devices<br/>Track B, later"]:::ext
+
+  CA -- "create projects, upload data, define rubrics, view dashboards, export" --> P
+  CS -- "REST API with org API keys; receives webhooks" --> P
+  EX -- "profile, availability, conflicts, evaluate tasks" --> P
+  RV -- "second review, rework review, adjudication" --> P
+  PM -- "intake review, staffing approval, QA, delivery" --> P
+  OA -- "vet experts, manage tiers and billing" --> P
+  OP -- "tenant ops, support, monitoring" --> P
+
+  P -- "notifications" --> SES
+  P -- "OAuth / SSO login" --> IDP
+  P -- "import traces, push scores" --> LF
+  P -- "invoice data" --> FIN
+  P -. "expert payouts" .-> PAY
+  CAP -. "video and sensor uploads" .-> P

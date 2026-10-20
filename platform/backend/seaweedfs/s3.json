@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "ifl_local",
+      "credentials": [{ "accessKey": "ifl_local_key", "secretKey": "ifl_local_secret" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}
